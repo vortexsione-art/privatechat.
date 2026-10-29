@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akun Chat - 5 Tema</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{font-family:'Poppins',sans-serif;box-sizing:border-box}
+:root{
+  --bg: radial-gradient(circle at top, #2a2a4a, #0f0f0f 70%);
+  --card-bg: rgba(255,255,255,0.06);
+  --me-bg: linear-gradient(135deg,#8e2de2,#4a00e0);
+  --you-bg: #2a2a35;
+  --accent: #8e2de2;
+}
+body{margin:0;min-height:100vh;background:var(--bg);display:flex;justify-content:center;align-items:center;padding:20px;transition:.4s}
+.card{width:100%;max-width:380px;background:var(--card-bg);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:24px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.5)}
+#pageLogin{padding:30px 24px}
+.input{width:100%;background:#1e1e2a;border:1px solid #2a2a35;border-radius:12px;padding:14px;color:#fff;outline:none;margin-bottom:12px}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;background:var(--me-bg);color:#fff;font-weight:700;cursor:pointer}
+.akun-item{background:#1a1a26;border:1px solid #2a2a35;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:pointer}
+#pageChat{display:none;flex-direction:column;height:85vh;max-height:650px}
+.header{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(0,0,0,0.2);display:flex;justify-content:space-between;align-items:center;gap:8px}
+#chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;align-items:center}
+#chat > *{width:100%;max-width:360px}
+.bubble{max-width:85%;padding:10px 14px;border-radius:18px;font-size:14px;word-wrap:break-word;position:relative;cursor:pointer;transition:.2s}
+.me{align-self:flex-end;background:var(--me-bg);margin-left:auto;color:#fff}
+.you{align-self:flex-start;background:var(--you-bg);margin-right:auto;color:#fff}
+.system{align-self:center;background:rgba(250,204,21,0.15);border:1px solid rgba(250,204,21,0.3);color:#facc15;font-size:11px;padding:6px 12px;border-radius:20px;text-align:center}
+.bubble .trash{position:absolute;top:-8px;right:-8px;width:20px;height:20px;background:#ff1a1a;color:#fff;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:11px}
+.bubble:hover .trash{display:flex}
+.footer{padding:12px;background:#12121a;display:flex;gap:8px}
+.footer input{flex:1;background:#1e1e2a;border:1px solid #2a2a35;border-radius:12px;padding:12px;color:#fff;outline:none}
+.footer button{padding:12px 16px;border:none;border-radius:12px;background:var(--me-bg);color:#fff;font-weight:700;cursor:pointer}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:999}
+#overlay.show{display:flex}
+.modal{background:#1e1e2a;border:1px solid #333;border-radius:16px;padding:22px;width:90%;max-width:340px;text-align:center;animation:pop .25s;max-height:85vh;overflow-y:auto}
+@keyframes pop{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+.modal .btns{display:flex;gap:8px;margin-top:14px}
+.modal button{flex:1;padding:12px;border:none;border-radius:10px;font-weight:700;cursor:pointer}
+.btn-cancel{background:#2a2a2a;color:#aaa}.btn-del{background:#ff1a1a;color:#fff}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:10px 16px;border-radius:20px;font-size:11px;font-weight:700;display:none;z-index:1000}
+.toast.show{display:block}
+.countdown{font-size:10px;color:#ff6b6b;margin-top:4px}
+.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.theme-card{padding:12px;border-radius:12px;border:2px solid transparent;cursor:pointer;text-align:left;transition:.2s}
+.theme-card.active{border-color:var(--accent);transform:scale(1.02)}
+.theme-card b{font-size:12px;display:block}
+.theme-card span{font-size:10px;opacity:.7}
+.theme-preview{width:100%;height:24px;border-radius:6px;margin-bottom:8px;display:flex;gap:4px;padding:4px}
+.theme-preview div{flex:1;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="pageLogin">
+    <div style="width:60px;height:60px;background:var(--me-bg);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px">👤</div>
+    <div style="text-align:center;font-weight:700;font-size:20px">Masuk Akun Chat</div>
+    <div style="text-align:center;color:#aaa;font-size:12px;margin:6px 0 20px">1 nama = 1 room privat</div>
+    <input id="inputNama" class="input" placeholder="Nama kamu">
+    <button class="btn" onclick="masuk()">Masuk / Daftar</button>
+    <div style="margin-top:18px;border-top:1px solid rgba(255,255,255,0.08);padding-top:14px"><div style="font-size:12px;color:#aaa;margin-bottom:8px">Akun di HP ini:</div><div id="listAkun"></div></div>
+  </div>
+  <div id="pageChat">
+    <div class="header">
+      <div style="flex:1;min-width:0"><b id="namaAktif">-</b><div style="font-size:11px;color:#4ade80">● privat dengan host</div><div id="cooldownText" class="countdown"></div></div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button onclick="openTheme()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer">🎨</button>
+        <button onclick="openGantiNama()" style="background:rgba(142,45,226,0.2);border:1px solid rgba(142,45,226,0.3);color:#c084fc;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer">✏️</button>
+        <button onclick="logout()" style="background:rgba(255,80,80,0.15);border:1px solid rgba(255,80,80,0.3);color:#ff6b6b;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer">keluar</button>
+      </div>
+    </div>
+    <div id="chat"></div>
+    <div class="footer"><input id="pesan" placeholder="Ketik pesan..."><button onclick="kirim()">Kirim</button></div>
+  </div>
+</div>
+
+<div id="overlay" onclick="closeModal()">
+  <!-- MODAL HAPUS -->
+  <div class="modal" id="modalDel" onclick="event.stopPropagation()"><div style="font-size:28px">🗑️</div><h3 style="margin:8px 0 4px">Hapus Pesan?</h3><p style="font-size:11px;color:#888">Pesan ini akan dihapus permanen.</p><div class="btns"><button class="btn-cancel" onclick="closeModal()">Batal</button><button class="btn-del" onclick="confirmDelete()">Hapus</button></div></div>
+  <!-- MODAL GANTI NAMA -->
+  <div class="modal" id="modalGanti" onclick="event.stopPropagation()" style="display:none"><div style="font-size:28px">✏️</div><h3>Ganti Nama</h3><input id="inputGanti" style="width:100%;background:#12121a;border:1px solid #333;border-radius:10px;padding:12px;color:#fff;margin:12px 0" placeholder="Nama baru..."><div class="btns"><button class="btn-cancel" onclick="closeModal()">Batal</button><button class="btn-del" style="background:var(--me-bg)" onclick="confirmGantiNama()">Ganti</button></div></div>
+  <!-- MODAL TEMA 5 TEMA -->
+  <div class="modal" id="modalTheme" onclick="event.stopPropagation()" style="display:none">
+    <div style="font-size:28px">🎨</div><h3>Pilih Tema</h3><p style="font-size:11px;color:#888">Background & bubble chat bakal berubah</p>
+    <div class="theme-grid" id="themeGrid"></div>
+    <div class="btns" style="margin-top:16px"><button class="btn-cancel" onclick="closeModal()" style="width:100%">Tutup</button></div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const THEMES={
+  nebula: {name:'Nebula', desc:'Ungu gelap default', bg:'radial-gradient(circle at top, #2a2a4a, #0f0f0f 70%)', card:'rgba(255,255,255,0.06)', me:'linear-gradient(135deg,#8e2de2,#4a00e0)', you:'#2a2a35', accent:'#8e2de2', prev:['#8e2de2','#2a2a4a']},
+  ocean: {name:'Ocean', desc:'Biru laut kalem', bg:'radial-gradient(circle at top, #0f2a44, #020d1a 70%)', card:'rgba(0, 150, 255,0.08)', me:'linear-gradient(135deg,#00c6ff,#0072ff)', you:'#1a2a3a', accent:'#00c6ff', prev:['#00c6ff','#0072ff']},
+  forest: {name:'Forest', desc:'Hijau adem', bg:'radial-gradient(circle at top, #1a2e1a, #0a150a 70%)', card:'rgba(74, 222, 128,0.08)', me:'linear-gradient(135deg,#4ade80,#16a34a)', you:'#1a2a1a', accent:'#4ade80', prev:['#4ade80','#16a34a']},
+  sunset: {name:'Sunset', desc:'Orange pink senja', bg:'radial-gradient(circle at top, #4a2a1a, #1a0f0a 70%)', card:'rgba(251, 146, 60,0.08)', me:'linear-gradient(135deg,#ff8a00,#ff2a6d)', you:'#2a1a1a', accent:'#ff8a00', prev:['#ff8a00','#ff2a6d']},
+  midnight: {name:'Midnight', desc:'Hitam pekat dev', bg:'radial-gradient(circle at top, #1a1a1a, #000000 80%)', card:'rgba(255,255,255,0.04)', me:'linear-gradient(135deg,#333,#111)', you:'#222', accent:'#888', prev:['#333','#888']}
+};
+
+let akunAktif=null, deleteIndex=null;
+function showToast(m){let t=document.getElementById('toast');t.innerText=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+function applyTheme(key){
+  let t=THEMES[key]; if(!t) return;
+  document.documentElement.style.setProperty('--bg', t.bg);
+  document.documentElement.style.setProperty('--card-bg', t.card);
+  document.documentElement.style.setProperty('--me-bg', t.me);
+  document.documentElement.style.setProperty('--you-bg', t.you);
+  document.documentElement.style.setProperty('--accent', t.accent);
+  localStorage.setItem('theme_'+akunAktif, key);
+  renderThemeGrid();
+}
+
+function renderThemeGrid(){
+  let current=localStorage.getItem('theme_'+akunAktif)||'nebula';
+  let grid=document.getElementById('themeGrid'); grid.innerHTML='';
+  Object.keys(THEMES).forEach(k=>{
+    let th=THEMES[k];
+    let div=document.createElement('div');
+    div.className='theme-card'+(k===current?' active':'');
+    div.style.background=th.card; div.style.borderColor=k===current?th.accent:'transparent';
+    div.innerHTML=`<div class="theme-preview" style="background:${th.bg}"><div style="background:${th.prev[0]}"></div><div style="background:${th.prev[1]}"></div></div><b>${th.name}</b><span>${th.desc}</span>`;
+    div.onclick=()=>{applyTheme(k); showToast('Tema '+th.name+' aktif ✨');};
+    grid.appendChild(div);
+  });
+}
+
+function renderAkun(){
+  let list=JSON.parse(localStorage.getItem('akunList')||'[]');
+  let box=document.getElementById('listAkun');
+  if(!list.length){box.innerHTML='<div style="color:#555;font-size:12px;text-align:center">Belum ada akun</div>';return;}
+  box.innerHTML='';list.forEach(a=>{
+    let d=document.createElement('div');d.className='akun-item';d.innerHTML=`<div><b>${a.nama}</b></div><span>›</span>`;
+    d.onclick=()=>{document.getElementById('inputNama').value=a.nama;masuk();};box.appendChild(d);
+  });
+}
+function masuk(){
+  let nama=document.getElementById('inputNama').value.trim();if(!nama||nama.length<3){alert('Nama min 3 huruf');return;}
+  let list=JSON.parse(localStorage.getItem('akunList')||'[]');
+  let ada=list.find(a=>a.nama.toLowerCase()===nama.toLowerCase());
+  if(!ada){list.push({nama,tanggal:new Date().toLocaleDateString('id-ID'), lastRename:0});localStorage.setItem('akunList',JSON.stringify(list));}
+  else nama=ada.nama;
+  akunAktif=nama;localStorage.setItem('akunAktif',nama);
+  document.getElementById('pageLogin').style.display='none';document.getElementById('pageChat').style.display='flex';
+  document.getElementById('namaAktif').innerText=nama;
+  let savedTheme=localStorage.getItem('theme_'+akunAktif)||'nebula'; applyTheme(savedTheme);
+  tampilkan();
+}
+function logout(){akunAktif=null;localStorage.removeItem('akunAktif');document.getElementById('pageLogin').style.display='block';document.getElementById('pageChat').style.display='none';renderAkun();}
+function tampilkan(){
+  if(!akunAktif) return;
+  let list=JSON.parse(localStorage.getItem('semuaPesan')||'[]');
+  let box=document.getElementById('chat');box.innerHTML='';
+  let count=0;
+  list.forEach((item,idx)=>{
+    let isMine=item.from==='pengirim' && item.nama===akunAktif;
+    let isHostToMe=item.from==='penerima' && (item.to===akunAktif || item.to==='all');
+    let isSystem=item.from==='system' && (item.oldNama===akunAktif || item.newNama===akunAktif);
+    if(!isMine && !isHostToMe && !isSystem) return;
+    if(item.deletedBy && item.deletedBy.includes(akunAktif)) return;
+    count++;
+    if(isSystem){
+      box.innerHTML+=`<div style="width:100%;display:flex;justify-content:center"><div class="system">🔄 ${item.pesan}</div></div>`;
+    } else {
+      let cls=isMine?'me':'you';
+      let trashBtn=isMine?`<div class="trash">✕</div>`:'';
+      box.innerHTML+=`<div style="width:100%;max-width:360px;display:flex;${cls==='me'?'justify-content:flex-end':'justify-content:flex-start'}">
+        <div class="bubble ${cls}" onclick="openDel(${idx})">${item.pesan}${trashBtn}<div style="font-size:9px;opacity:.6;text-align:right;margin-top:4px">${item.jam}</div></div>
+      </div>`;
+    }
+  });
+  if(count===0){box.innerHTML=`<div style="text-align:center;color:#555;margin-top:50px;font-size:13px;width:100%">Halo <b>${akunAktif}</b><br>Room privat kamu ✨<br>Tap 🎨 buat ganti tema</div>`;}
+  box.scrollTop=box.scrollHeight;updateCooldownUI();
+}
+function kirim(){
+  let pesan=document.getElementById('pesan').value.trim();if(!pesan) return;
+  let data={nama:akunAktif,pesan,jam:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), from:'pengirim', deletedBy:[]};
+  let list=JSON.parse(localStorage.getItem('semuaPesan')||'[]');list.push(data);localStorage.setItem('semuaPesan',JSON.stringify(list));
+  document.getElementById('pesan').value='';tampilkan();
+}
+function openDel(idx){let list=JSON.parse(localStorage.getItem('semuaPesan')||'[]');let item=list[idx];if(item.from!=='pengirim' || item.nama!==akunAktif) return; deleteIndex=idx; document.getElementById('overlay').classList.add('show'); document.getElementById('modalDel').style.display='block'; document.getElementById('modalGanti').style.display='none'; document.getElementById('modalTheme').style.display='none';}
+function openGantiNama(){
+  let list=JSON.parse(localStorage.getItem('akunList')||'[]');let me=list.find(a=>a.nama===akunAktif);
+  if(me && me.lastRename && Date.now()-me.lastRename<60000){let s=Math.ceil((60000-(Date.now()-me.lastRename))/1000);showToast('Tunggu '+s+' detik lagi ⏳');return;}
+  document.getElementById('inputGanti').value=akunAktif;
+  document.getElementById('overlay').classList.add('show');document.getElementById('modalDel').style.display='none';document.getElementById('modalGanti').style.display='block';document.getElementById('modalTheme').style.display='none';
+}
+function openTheme(){renderThemeGrid();document.getElementById('overlay').classList.add('show');document.getElementById('modalDel').style.display='none';document.getElementById('modalGanti').style.display='none';document.getElementById('modalTheme').style.display='block';}
+function closeModal(){document.getElementById('overlay').classList.remove('show');}
+function confirmDelete(){
+  let list=JSON.parse(localStorage.getItem('semuaPesan')||'[]');
+  if(!list[deleteIndex].deletedBy) list[deleteIndex].deletedBy=[];
+  list[deleteIndex].deletedBy.push(akunAktif);
+  if(list[deleteIndex].deletedBy.includes('host') && list[deleteIndex].deletedBy.includes(akunAktif)){list.splice(deleteIndex,1);}
+  localStorage.setItem('semuaPesan',JSON.stringify(list));
+  closeModal(); showToast('Pesan telah dihapus'); tampilkan();
+}
+function confirmGantiNama(){
+  let newNama=document.getElementById('inputGanti').value.trim();if(!newNama||newNama.length<3)return;
+  if(newNama===akunAktif){closeModal();return;}
+  let akunList=JSON.parse(localStorage.getItem('akunList')||'[]');
+  if(akunList.some(a=>a.nama.toLowerCase()===newNama.toLowerCase())){alert('Nama sudah dipakai');return;}
+  let oldNama=akunAktif;
+  let pesanList=JSON.parse(localStorage.getItem('semuaPesan')||'[]');
+  pesanList.forEach(p=>{if(p.nama===oldNama) p.nama=newNama; if(p.to===oldNama) p.to=newNama;});
+  pesanList.push({nama:'system',from:'system',oldNama,newNama,pesan:`${oldNama} mengganti nama menjadi ${newNama}`,jam:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),deletedBy:[]});
+  localStorage.setItem('semuaPesan',JSON.stringify(pesanList));
+  let me=akunList.find(a=>a.nama===oldNama);me.nama=newNama;me.lastRename=Date.now();
+  // pindah tema juga
+  let oldTheme=localStorage.getItem('theme_'+oldNama); if(oldTheme){localStorage.setItem('theme_'+newNama,oldTheme); localStorage.removeItem('theme_'+oldNama);}
+  localStorage.setItem('akunList',JSON.stringify(akunList));akunAktif=newNama;localStorage.setItem('akunAktif',newNama);
+  document.getElementById('namaAktif').innerText=newNama;closeModal();showToast('Nama jadi '+newNama+' ✅');tampilkan();renderAkun();
+}
+function updateCooldownUI(){
+  let list=JSON.parse(localStorage.getItem('akunList')||'[]');let me=list.find(a=>a.nama===akunAktif);if(!me)return;
+  let el=document.getElementById('cooldownText');if(!me.lastRename){el.innerText='';return;}
+  let diff=Date.now()-me.lastRename;if(diff>=60000){el.innerText='✅ bisa ganti nama';el.style.color='#4ade80';}else{el.innerText='⏳ ganti nama '+Math.ceil((60000-diff)/1000)+'s lagi';el.style.color='#ff6b6b';}
+}
+window.onload=()=>{renderAkun();let s=localStorage.getItem('akunAktif');if(s){document.getElementById('inputNama').value=s;masuk();}setInterval(()=>{if(akunAktif)tampilkan();},1000);}
+</script>
+</body>
+</html>
